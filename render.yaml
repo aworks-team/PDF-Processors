@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: BOL-Extractor-Flask-App-Server
+    name: PDF-Processors
     env: python
     buildCommand: apt-get update -y && apt-get install -y poppler-utils && pip install -r requirements.txt
     startCommand: gunicorn app:app --workers=2 --timeout=120

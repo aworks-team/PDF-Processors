@@ -1,8 +1,11 @@
 import os
 import platform
+from dotenv import load_dotenv
 
 # OpenAI Configuration
-OPENAI_API_KEY = "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"
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# print(OPENAI_API_KEY)
 
 # Poppler Configuration
 if platform.system() == "Windows":
@@ -12,7 +15,7 @@ else:
     POPPLER_PATH = None  # or '/usr/bin' if your code requires an explicit path
 
 # File Processing
-OUTPUT_CSV_NAME = "combined_data.csv"
+OUTPUT_CSV_NAME = "order_data.csv"
 
 # Models
 OPENAI_MODEL = "gpt-4-turbo"

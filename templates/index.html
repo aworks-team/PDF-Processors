@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BOL Processor</title>
+    <title>Order PDF Processor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -13,12 +13,14 @@
       <div class="max-w-3xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">BOL Processor</h1>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            Order PDF Processor
+          </h1>
           <p class="text-gray-600 mb-6">
-            Follow the steps below to process your documents
+            Extract order information from PDFs using AI
           </p>
 
-          <!-- Stepper -->
+          <!-- Stepper for Order Processing -->
           <div class="flex justify-center items-center space-x-4 mb-8">
             <div class="flex items-center">
               <div
@@ -30,7 +32,7 @@
               <span
                 class="ml-2 font-medium"
                 :class="[currentStep === 1 ? 'text-blue-500' : isPdfComplete ? 'text-green-500' : 'text-gray-500']"
-                >PDF</span
+                >Upload</span
               >
             </div>
             <div
@@ -40,26 +42,26 @@
             <div class="flex items-center">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center border-2"
-                :class="[currentStep === 2 ? 'border-blue-500 bg-blue-50 text-blue-500' : isCsvComplete ? 'border-green-500 bg-green-50 text-green-500' : 'border-gray-300 text-gray-500']"
+                :class="[currentStep === 2 ? 'border-blue-500 bg-blue-50 text-blue-500' : isComplete ? 'border-green-500 bg-green-50 text-green-500' : 'border-gray-300 text-gray-500']"
               >
                 <span class="text-lg font-semibold">2</span>
               </div>
               <span
                 class="ml-2 font-medium"
-                :class="[currentStep === 2 ? 'text-blue-500' : isCsvComplete ? 'text-green-500' : 'text-gray-500']"
-                >CSV</span
+                :class="[currentStep === 2 ? 'text-blue-500' : isComplete ? 'text-green-500' : 'text-gray-500']"
+                >Download</span
               >
             </div>
           </div>
         </div>
 
-        <!-- Step 1: PDF Upload -->
+        <!-- Step 1: Order PDF Upload -->
         <div
-          v-show="currentStep === 1"
+          v-show="currentStep === 1 || !isPdfComplete"
           class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all duration-300"
         >
           <h2 class="text-xl font-semibold mb-4 text-gray-800">
-            Step 1: Upload BOL PDF
+            Step 1: Upload Order PDF
           </h2>
           <div
             v-if="!isProcessing && !isPdfComplete"
@@ -101,35 +103,22 @@
               or drag and drop
             </div>
 
-            <div class="text-sm text-gray-500">PDF up to 16MB</div>
+            <div class="text-sm text-gray-500">Order PDF up to 16MB</div>
           </div>
         </div>
 
-        <!-- Step 2: CSV Upload -->
+        <!-- Step 2: Order CSV Download -->
         <div
-          v-show="currentStep === 2"
+          v-show="currentStep === 2 || isComplete"
           class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all duration-300"
         >
           <h2 class="text-xl font-semibold mb-4 text-gray-800">
-            Step 2: Upload CSV/Excel Data
+            Step 2: Download Order Data
           </h2>
-          <div
-            v-if="!isProcessing && !isCsvComplete"
-            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors duration-200"
-            @dragover.prevent
-            @drop.prevent="handleCsvDrop"
-          >
-            <input
-              type="file"
-              ref="csvInput"
-              @change="handleCsvSelect"
-              accept=".csv,.xlsx,.xls"
-              class="hidden"
-            />
-
+          <div v-if="isComplete" class="text-center">
             <div class="mb-4">
               <svg
-                class="mx-auto h-12 w-12 text-gray-400"
+                class="mx-auto h-12 w-12 text-green-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -138,19 +127,33 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
             </div>
-
-            <div class="text-gray-600 mb-4">
-              <button
-                @click="$refs.csvInput.click()"
-                class="text-blue-500 hover:text-blue-600 font-medium"
+            <p class="text-gray-600 mb-6">
+              Your order PDF has been processed and data has been extracted.
+            </p>
+            <div class="flex justify-center">
+              <a
+                href="/download-order-csv"
+                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
-                Choose CSV/Excel
-              </button>
-              or drag and drop
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+                Download Order Data
+              </a>
             </div>
           </div>
         </div>
@@ -167,7 +170,7 @@
               class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"
             ></div>
             <h3 class="text-xl font-semibold text-gray-800 mb-2">
-              Processing in Progress
+              AI Processing in Progress
             </h3>
             <p class="text-gray-700 text-lg mb-4">{{ processingMessage }}</p>
 
@@ -185,12 +188,8 @@
             <!-- Step-specific messages -->
             <div class="text-sm text-gray-500">
               <p v-if="currentStep === 1" class="mb-2">
-                <span class="font-medium">Current task:</span> Converting PDF
-                and extracting data
-              </p>
-              <p v-if="currentStep === 2" class="mb-2">
-                <span class="font-medium">Current task:</span> Mapping CSV data
-                with existing records
+                <span class="font-medium">Current task:</span> Extracting order
+                information using AI
               </p>
               <div class="mt-4 text-xs flex items-center justify-center">
                 <svg
@@ -210,276 +209,51 @@
           </div>
         </div>
 
-        <!-- Error State 
-            <div v-if="error" 
-                class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 animate-fade-in"
-                :class="[error.includes('success') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600']">
-                <div class="flex items-center">
-                    <svg v-if="!error.includes('success')" class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <svg v-else class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    <p>{{ error }}</p>
-                    <button @click="error = null" 
-                            :class="[error.includes('success') ? 'text-green-700 hover:text-green-800' : 'text-red-700 hover:text-red-800']"
-                            class="ml-4">
-                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
-                    </button>
-                </div>
-            </div> -->
-
-        <!-- Final Download Section -->
+        <!-- Error State -->
         <div
-          v-if="isComplete"
-          class="bg-white rounded-lg shadow-md p-6 text-center animate-fade-in"
+          v-if="error"
+          class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 animate-fade-in"
+          :class="[error.includes('success') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600']"
         >
-          <div class="mb-4">
+          <div class="flex items-center">
             <svg
-              class="mx-auto h-12 w-12 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              v-if="!error.includes('success')"
+              class="h-5 w-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
             >
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd"
               />
             </svg>
-          </div>
-          <h2 class="text-xl font-semibold mb-2 text-gray-800">
-            Processing Complete!
-          </h2>
-          <p class="text-gray-600 mb-6">
-            Your BOL PDF has been processed and data has been mapped with the
-            CSV.
-          </p>
-          <div class="flex justify-center">
-            <a
-              href="/download"
-              class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+            <svg
+              v-else
+              class="h-5 w-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
             >
-              <svg
-                class="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <p>{{ error }}</p>
+            <button
+              @click="error = null"
+              :class="[error.includes('success') ? 'text-green-700 hover:text-green-800' : 'text-red-700 hover:text-red-800']"
+              class="ml-4"
+            >
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
                 />
               </svg>
-              Download Result
-            </a>
-          </div>
-        </div>
-
-        <!-- Order PDF Processor Section - Added Below BOL Processor -->
-        <div class="mt-16 border-t pt-12">
-          <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">
-              Order PDF Processor
-            </h1>
-            <p class="text-gray-600 mb-6">
-              Extract order information from PDFs using AI
-            </p>
-
-            <!-- Stepper for Order Processing -->
-            <div class="flex justify-center items-center space-x-4 mb-8">
-              <div class="flex items-center">
-                <div
-                  class="w-10 h-10 rounded-full flex items-center justify-center border-2"
-                  :class="[currentOrderStep === 1 ? 'border-blue-500 bg-blue-50 text-blue-500' : isOrderPdfComplete ? 'border-green-500 bg-green-50 text-green-500' : 'border-gray-300 text-gray-500']"
-                >
-                  <span class="text-lg font-semibold">1</span>
-                </div>
-                <span
-                  class="ml-2 font-medium"
-                  :class="[currentOrderStep === 1 ? 'text-blue-500' : isOrderPdfComplete ? 'text-green-500' : 'text-gray-500']"
-                  >Upload</span
-                >
-              </div>
-              <div
-                class="w-24 h-0.5"
-                :class="[isOrderPdfComplete ? 'bg-green-500' : 'bg-gray-300']"
-              ></div>
-              <div class="flex items-center">
-                <div
-                  class="w-10 h-10 rounded-full flex items-center justify-center border-2"
-                  :class="[currentOrderStep === 2 ? 'border-blue-500 bg-blue-50 text-blue-500' : isOrderComplete ? 'border-green-500 bg-green-50 text-green-500' : 'border-gray-300 text-gray-500']"
-                >
-                  <span class="text-lg font-semibold">2</span>
-                </div>
-                <span
-                  class="ml-2 font-medium"
-                  :class="[currentOrderStep === 2 ? 'text-blue-500' : isOrderComplete ? 'text-green-500' : 'text-gray-500']"
-                  >Download</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 1: Order PDF Upload -->
-          <div
-            v-show="currentOrderStep === 1 || !isOrderPdfComplete"
-            class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all duration-300"
-          >
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">
-              Step 1: Upload Order PDF
-            </h2>
-            <div
-              v-if="!isOrderProcessing && !isOrderPdfComplete"
-              class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors duration-200"
-              @dragover.prevent
-              @drop.prevent="handleOrderFileDrop"
-            >
-              <input
-                type="file"
-                ref="orderFileInput"
-                @change="handleOrderFileSelect"
-                accept=".pdf"
-                class="hidden"
-              />
-
-              <div class="mb-4">
-                <svg
-                  class="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-
-              <div class="text-gray-600 mb-4">
-                <button
-                  @click="$refs.orderFileInput.click()"
-                  class="text-blue-500 hover:text-blue-600 font-medium"
-                >
-                  Choose a file
-                </button>
-                or drag and drop
-              </div>
-
-              <div class="text-sm text-gray-500">Order PDF up to 16MB</div>
-            </div>
-          </div>
-
-          <!-- Step 2: Order CSV Download -->
-          <div
-            v-show="currentOrderStep === 2 || isOrderComplete"
-            class="bg-white rounded-lg shadow-md p-6 mb-6 transition-all duration-300"
-          >
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">
-              Step 2: Download Order Data
-            </h2>
-            <div v-if="isOrderComplete" class="text-center">
-              <div class="mb-4">
-                <svg
-                  class="mx-auto h-12 w-12 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <p class="text-gray-600 mb-6">
-                Your order PDF has been processed and data has been extracted.
-              </p>
-              <div class="flex justify-center">
-                <a
-                  href="/download-order-csv"
-                  class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                >
-                  <svg
-                    class="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Download Order Data
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Order Processing Modal -->
-          <div
-            v-if="isOrderProcessing"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          >
-            <div
-              class="bg-white p-8 rounded-lg shadow-xl text-center max-w-md w-full mx-4"
-            >
-              <div
-                class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"
-              ></div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">
-                AI Processing in Progress
-              </h3>
-              <p class="text-gray-700 text-lg mb-4">
-                {{ orderProcessingMessage }}
-              </p>
-
-              <!-- Progress Bar -->
-              <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                <div
-                  class="bg-blue-500 h-2.5 rounded-full transition-all duration-300 ease-out"
-                  :style="{ width: `${orderProgress}%` }"
-                ></div>
-              </div>
-              <p class="text-sm text-gray-500 mb-4">
-                {{ orderProgress }}% Complete
-              </p>
-
-              <div class="text-sm text-gray-500">
-                <p class="mb-2">
-                  <span class="font-medium">Current task:</span> Extracting
-                  order information using AI
-                </p>
-                <div class="mt-4 text-xs flex items-center justify-center">
-                  <svg
-                    class="w-4 h-4 mr-2 animate-pulse-attention"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                    />
-                  </svg>
-                  <span class="text-blue-500 animate-pulse-text font-medium"
-                    >Please keep this window open</span
-                  >
-                </div>
-              </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -494,17 +268,11 @@
             currentStep: 1,
             isProcessing: false,
             isPdfComplete: false,
-            isCsvComplete: false,
             isComplete: false,
             error: null,
             processingMessage: "",
             progress: 0,
             progressInterval: null,
-            currentOrderStep: 1,
-            isOrderPdfComplete: false,
-            isOrderComplete: false,
-            orderProcessingMessage: "",
-            orderProgress: 0,
           };
         },
         computed: {
@@ -525,24 +293,10 @@
               this.showError("Please upload a PDF file");
             }
           },
-          handleCsvSelect(event) {
-            const file = event.target.files[0];
-            if (file) this.uploadCsv(file);
-          },
-          handleCsvDrop(event) {
-            const file = event.dataTransfer.files[0];
-            const allowedExtensions = ["csv", "xlsx", "xls"];
-            const fileExtension = file.name.split(".").pop().toLowerCase();
-            if (allowedExtensions.includes(fileExtension)) {
-              this.uploadCsv(file);
-            } else {
-              this.showError("Please upload a CSV or Excel file");
-            }
-          },
           async uploadPdf(file) {
             this.startProgress();
             this.processingMessage =
-              "Analyzing PDF content and extracting shipping information...";
+              "Extracting order information from PDF using AI...";
             this.isProcessing = true;
             this.error = null;
 
@@ -550,43 +304,20 @@
             formData.append("file", file);
 
             try {
-              await axios.post("/upload", formData);
+              const response = await axios.post("/upload-order-pdf", formData);
               this.progress = 100;
               this.isPdfComplete = true;
-              this.currentStep = 2;
-            } catch (error) {
-              this.showError(
-                error.response?.data?.error || "Error processing PDF"
-              );
-            } finally {
-              this.stopProgress();
-              this.isProcessing = false;
-            }
-          },
-          async uploadCsv(file) {
-            this.startProgress();
-            this.processingMessage =
-              "Mapping spreadsheet data to existing records...";
-            this.isProcessing = true;
-            this.error = null;
-
-            const formData = new FormData();
-            formData.append("file", file);
-
-            try {
-              const response = await axios.post("/upload-csv", formData);
-              this.progress = 100;
-              this.isCsvComplete = true;
               this.isComplete = true;
+              this.currentStep = 2;
 
               // Optional: Show success message
-              this.showMessage("Data mapped successfully!");
+              this.showMessage("Order information extracted successfully!");
               setTimeout(() => {
                 this.error = null;
               }, 3000);
             } catch (error) {
               const errorMsg =
-                error.response?.data?.error || "Error processing spreadsheet";
+                error.response?.data?.error || "Error processing order PDF";
               this.showError(errorMsg);
             } finally {
               this.stopProgress();
@@ -599,10 +330,12 @@
               this.error = null;
             }, 5000);
           },
-          downloadCSV() {
-            window.location.href = "/download";
+          showMessage(message) {
+            this.error = "success: " + message;
+            setTimeout(() => {
+              this.error = null;
+            }, 3000);
           },
-
           startProgress() {
             this.progress = 0;
             this.progressInterval = setInterval(() => {
@@ -613,71 +346,14 @@
               }
             }, 500);
           },
-
           stopProgress() {
             if (this.progressInterval) {
               clearInterval(this.progressInterval);
               this.progressInterval = null;
             }
           },
-
-          handleOrderFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) this.uploadOrderPdf(file);
-          },
-          handleOrderFileDrop(event) {
-            const file = event.dataTransfer.files[0];
-            if (file && file.type === "application/pdf") {
-              this.uploadOrderPdf(file);
-            } else {
-              this.showError("Please upload a PDF file");
-            }
-          },
-          async uploadOrderPdf(file) {
-            this.startOrderProgress();
-            this.orderProcessingMessage =
-              "Extracting order information from PDF...";
-            this.isOrderProcessing = true;
-            this.error = null;
-
-            const formData = new FormData();
-            formData.append("file", file);
-
-            try {
-              const response = await axios.post("/upload-order-pdf", formData);
-              this.orderProgress = 100;
-              this.isOrderPdfComplete = true;
-              this.isOrderComplete = true;
-
-              // Optional: Show success message
-              this.showMessage("Order information extracted successfully!");
-              setTimeout(() => {
-                this.error = null;
-              }, 3000);
-            } catch (error) {
-              const errorMsg =
-                error.response?.data?.error || "Error processing order PDF";
-              this.showError(errorMsg);
-            } finally {
-              this.stopOrderProgress();
-              this.isOrderProcessing = false;
-            }
-          },
-          startOrderProgress() {
-            this.orderProgress = 0;
-            this.orderProgressInterval = setInterval(() => {
-              if (this.orderProgress < 90) {
-                // Random increment between 2 and 8
-                this.orderProgress += 2 + Math.random() * 6;
-                if (this.orderProgress > 90) this.orderProgress = 90;
-              }
-            }, 500);
-          },
-          stopOrderProgress() {
-            if (this.orderProgressInterval) {
-              clearInterval(this.orderProgressInterval);
-              this.orderProgressInterval = null;
-            }
+          downloadOrderCSV() {
+            window.location.href = "/download-order-csv";
           },
         },
       }).mount("#app");
