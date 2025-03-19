@@ -2,7 +2,6 @@ import os
 import gc
 import pdfplumber
 import pdf2image
-from utils import PopplerUtils, FileUtils
 from config import POPPLER_PATH
 
 class PDFProcessor:

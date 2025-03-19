@@ -12,7 +12,6 @@ from flask import Flask, render_template, request, send_file, jsonify, session
 from werkzeug.utils import secure_filename
 from pdf_processor import PDFProcessor
 from data_processor import DataProcessor
-from csv_exporter import CSVExporter
 from config import OUTPUT_CSV_NAME, OPENAI_API_KEY, OPENAI_MODEL  # Add OPENAI_API_KEY and OPENAI_MODEL to config.py
 
 app = Flask(__name__)
@@ -60,7 +59,6 @@ def process_pdf():
         # Initialize processors
         pdf_processor = PDFProcessor()
         data_processor = DataProcessor()
-        csv_exporter = CSVExporter()
         
         # Process through pipeline
         if not pdf_processor.process_first_pdf():
@@ -69,7 +67,6 @@ def process_pdf():
         if not data_processor.process_all_files():
             return False, "Failed to process text files"
             
-        if not csv_exporter.combine_to_csv():
             return False, "Failed to create CSV file"
             
         return True, "Processing completed successfully"
@@ -158,9 +155,6 @@ def process():
     # Process the files
     processor.process_all_files()
     
-    # Create exporter with the same session directory
-    exporter = CSVExporter(session_dir=processor.session_dir)
-    exporter.combine_to_csv()
     
     return jsonify({"status": "success"})
 
@@ -204,11 +198,6 @@ def upload_file():
             
         if not processor.process_all_files():
             return jsonify({'error': 'Failed to process text files'}), 500
-            
-        # Create exporter with the same session directory
-        exporter = CSVExporter(session_dir=processor.session_dir)
-        if not exporter.combine_to_csv():
-            return jsonify({'error': 'Failed to create CSV file'}), 500
             
         return jsonify({'message': 'File processed successfully'}), 200
         
