@@ -340,7 +340,9 @@ def process_order_pdf_with_openai(pdf_path, session_dir):
                     print(f"Text preview (first 5 lines):")
                     for i, line in enumerate(preview_lines):
                         print(f"  Line {i+1}: {line[:80]}{'...' if len(line) > 80 else ''}")
-                    print(f"  [Total: {len(text.split('\n'))} lines, {len(text)} characters]")
+                    # Fix the f-string syntax error by calculating line count separately
+                    line_count = len(text.split('\n'))
+                    print(f"  [Total: {line_count} lines, {len(text)} characters]")
                     
                     # Create prompt for OpenAI for this page
                     print(f"Creating prompt for OpenAI (page {page_num + 1})")
